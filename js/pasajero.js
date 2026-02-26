@@ -10,7 +10,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 // Variables globales
 let busMarker = null;
 let trazadoTiempoReal = L.polyline([], {weight: 5}).addTo(map);
-const idBusASeguir = B0001; // Este ID debe coincidir con el del chofer
+const idBusASeguir = 'B0001'; // Este ID debe coincidir con el del chofer
 
 // Icono personalizado para el autobús
 const busIcon = L.icon({
@@ -21,21 +21,32 @@ const busIcon = L.icon({
 
 // 1. FUNCIÓN: Cargar la ruta oficial (la que debe seguir)
 async function dibujarRutaOficial(clvRuta) {
+    console.log("Intentando cargar ruta con clave:", clvRuta);
+
     const { data: puntos, error } = await _supabase
         .from('puntos_ruta')
-        .select('lat, long')
+        .select('lat, long, orden') 
         .eq('clvRuta', clvRuta)
         .order('orden', { ascending: true });
 
-    if (puntos) {
-        const latlngs = puntos.map(p => [p.lat, p.lng]);
-        L.polyline(latlngs, {color: '#3388ff', weight: 3, dashArray: '5, 10', opacity: 0.5}).addTo(map);
-    }
+    // Convertimos los datos al formato de Leaflet [lat, long]
+    const latlngs = puntos.map(p => [p.lat, p.long]);
+
+    // Dibujar la polilínea
+    const poly = L.polyline(latlngs, {
+        color: '#23998e', 
+        weight: 5, 
+        lineJoin: "round", 
+        opacity: 0.8
+    }).addTo(map);
+
+    // Ajustar el zoom automáticamente para que se vea toda la ruta trazada
+    map.fitBounds(poly.getBounds());
 }
 
 // 2. FUNCIÓN: Actualizar el bus y su rastro en el mapa
-function actualizarMapa(lat, lng, velocidad) {
-    const nuevaPos = [lat, lng];
+function actualizarMapa(lat, long, velocidad) {
+    const nuevaPos = [lat, long];
 
     // Mover o crear el marcador del bus
     if (!busMarker) {
@@ -66,18 +77,18 @@ const canal = _supabase
     .on('postgres_changes', 
         { event: 'INSERT', schema: 'public', table: 'monitoreo', filter: `clvBus=eq.${idBusASeguir}` }, 
         (payload) => {
-            const { lat, lng, velocidad } = payload.new;
-            actualizarMapa(lat, lng, velocidad);
+            const { lat, long, velocidad } = payload.new;
+            actualizarMapa(lat, long, velocidad);
         }
     )
     .on('postgres_changes', 
         { event: 'UPDATE', schema: 'public', table: 'monitoreo', filter: `clvBus=eq.${idBusASeguir}` }, 
         (payload) => {
-            const { lat, lng, velocidad } = payload.new;
-            actualizarMapa(lat, lng, velocidad);
+            const { lat, long, velocidad } = payload.new;
+            actualizarMapa(lat, long, velocidad);
         }
     )
     .subscribe();
 
 // Ejecución inicial
-dibujarRutaOficial(1); // Supongamos que queremos ver la ruta ID 1
+dibujarRutaOficial('1'); // Supongamos que queremos ver la ruta ID 1
