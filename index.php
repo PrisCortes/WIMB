@@ -16,7 +16,7 @@
         <a href="./inicio_sesion.php"><li>Inicio de sesión</li></a>
     </ul>
     <ul>
-        <a href="./pasajeros.php"><li>Pasajeros</li></a>
+        <a href="./pasajero.php"><li>Pasajeros</li></a>
     </ul>
 </body>
 </html>
