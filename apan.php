@@ -1,13 +1,21 @@
 <?php
-session_start();
+// ESTE ARCHIVO SOLO RECIBE clvRuta
+// AQUÍ DESPUÉS EL EQUIPO BACKEND CONECTARÁ MYSQL
 
-if (!isset($_SESSION['mis_rutas'])) {
-    $_SESSION['mis_rutas'] = [];
-}
+if($_SERVER["REQUEST_METHOD"]==="POST"){
+    
+    $clvRuta = $_POST["clvRuta"];
 
-if (isset($_POST['guardar_id'])) {
-    $idRuta = $_POST['guardar_id'];
-    $_SESSION['mis_rutas'][] = $idRuta;
+    // Aquí después conectarán la base:
+    /*
+    INSERT INTO mis_rutas (clvRuta, fecha)
+    VALUES ($clvRuta, NOW())
+    */
+
+    echo json_encode([
+        "status"=>"ok",
+        "clvRuta"=>$clvRuta
+    ]);
     exit;
 }
 ?>
@@ -15,132 +23,143 @@ if (isset($_POST['guardar_id'])) {
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Rutas Apan</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta charset="UTF-8">
+<title>SmartBus Apan</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<link rel="stylesheet" href="uriel-styles.css"> <!-- TU CSS SEPARADO -->
-
+<link rel="stylesheet" href="./styles/uriel-styles.css">
+<style>
+</style>
 </head>
 <body>
 
-<div class="barra">
-    <input type="text" id="busqueda" placeholder="Buscar dirección en Apan...">
-    <button class="buscar" onclick="buscarDireccion()">🔍 Buscar</button>
+<div class="app">
+
+<div class="top">
+<input id="busqueda" placeholder="Buscar ruta...">
+<button onclick="mostrar()">🔍</button>
 </div>
 
+<div class="list" id="lista"></div>
 <div id="map"></div>
 
-<div id="acciones">
-    <button class="guardar" onclick="guardarRuta()">Guardar Ruta</button>
-    <button class="mis" onclick="mostrarMisRutas()">Mis Rutas</button>
+<div class="menu" id="menu">
+<button onclick="guardar()">🚌</button>
+<button onclick="misRutas()">📋</button>
 </div>
 
-<div id="misRutasPanel" style="display:none;">
-    <h3>Mis Rutas</h3>
-    <div id="listaRutas">
-        <?php
-        foreach($_SESSION['mis_rutas'] as $ruta){
-            echo "<p>ID Ruta: ".$ruta."</p>";
-        }
-        ?>
-    </div>
+<div class="panel" id="panel">
+<div style="text-align:right;cursor:pointer" onclick="panel.classList.remove('active')">✖</div>
+<div id="contenido"></div>
+</div>
+
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <script>
-let map = L.map('map').setView([19.708, -98.452], 14);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution:'© OpenStreetMap'
-}).addTo(map);
+let map = L.map('map',{zoomControl:false}).setView([19.7120,-98.4500],14);
 
-let marcador = null;
-let rutaSeleccionadaID = null;
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(map);
 
-let busIcon = L.icon({
-    iconUrl: 'https://cdn-icons-png.flaticon.com/512/61/61231.png',
-    iconSize: [35,35]
+let marker=null;
+let rutaLinea=null;
+let clvRutaSeleccionada=null;
+
+// 🔎 ESTA LISTA DESPUÉS VIENE DE TABLA rutas
+// FORMATO EXACTO QUE USARÁ LA BASE
+let rutas = [
+{clvRuta:1, nombre:"Ruta Centro - ITESA", color:"red"},
+{clvRuta:2, nombre:"Ruta Centro - Mercado", color:"blue"},
+{clvRuta:3, nombre:"Ruta Centro - Hospital", color:"green"}
+];
+
+// 🔍 MOSTRAR BÚSQUEDA
+function mostrar(){
+lista.innerHTML="";
+lista.style.display="block";
+
+rutas.forEach(r=>{
+lista.innerHTML+=`
+<div onclick="seleccionar(${r.clvRuta})">
+🟢 ${r.nombre}
+</div>`;
+});
+}
+
+// 🚍 SELECCIONAR RUTA (usa clvRuta)
+function seleccionar(id){
+
+clvRutaSeleccionada=id;
+
+if(rutaLinea) map.removeLayer(rutaLinea);
+
+// AQUÍ DESPUÉS EL BACKEND HARÁ:
+// SELECT * FROM puntos_ruta WHERE clvRuta=id ORDER BY orden
+
+// Simulación visual temporal:
+rutaLinea=L.polyline([
+[19.7120,-98.4500],
+[19.7200,-98.4600]
+],{weight:6}).addTo(map);
+
+menu.style.display="flex";
+lista.style.display="none";
+}
+
+// 🗺 CLICK PARA SABER DIRECCIÓN (esto sí funciona real)
+map.on("click",function(e){
+
+let lat=e.latlng.lat;
+let lng=e.latlng.lng;
+
+if(marker) map.removeLayer(marker);
+
+marker=L.marker([lat,lng]).addTo(map);
+
+fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`)
+.then(r=>r.json())
+.then(data=>{
+let direccion=data.display_name || "Dirección no encontrada";
+marker.bindPopup("📍 "+direccion).openPopup();
 });
 
-map.on('click', function(e){
-
-    if(marcador){
-        map.removeLayer(marcador);
-    }
-
-    marcador = L.marker(e.latlng, {icon: busIcon}).addTo(map);
-
-    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}`)
-    .then(res => res.json())
-    .then(data => {
-
-        let direccion = data.display_name || "Ubicación en Apan";
-        marcador.bindPopup(direccion).openPopup();
-
-        rutaSeleccionadaID = Math.floor(Math.random() * 1000) + 1;
-
-        document.getElementById("acciones").style.display = "block";
-    });
-
 });
 
-function buscarDireccion(){
-    let texto = document.getElementById("busqueda").value;
+// 💾 GUARDAR SOLO clvRuta
+function guardar(){
 
-    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${texto} Apan Hidalgo`)
-    .then(res => res.json())
-    .then(data => {
-        if(data.length > 0){
-
-            let lat = data[0].lat;
-            let lon = data[0].lon;
-
-            map.setView([lat, lon], 16);
-
-            if(marcador){
-                map.removeLayer(marcador);
-            }
-
-            marcador = L.marker([lat, lon], {icon: busIcon}).addTo(map)
-                .bindPopup(data[0].display_name)
-                .openPopup();
-
-            rutaSeleccionadaID = Math.floor(Math.random() * 1000) + 1;
-
-            document.getElementById("acciones").style.display = "block";
-        } else {
-            alert("No se encontró la dirección");
-        }
-    });
+if(!clvRutaSeleccionada){
+alert("Selecciona una ruta primero");
+return;
 }
 
-function guardarRuta(){
+let f=new FormData();
+f.append("clvRuta",clvRutaSeleccionada);
 
-    if(!rutaSeleccionadaID){
-        alert("Primero selecciona una ruta");
-        return;
-    }
+fetch("",{method:"POST",body:f})
+.then(r=>r.json())
+.then(data=>{
+alert("Ruta enviada con clave: "+data.clvRuta);
+});
 
-    let formData = new FormData();
-    formData.append("guardar_id", rutaSeleccionadaID);
-
-    fetch("index.php", {
-        method:"POST",
-        body: formData
-    })
-    .then(()=> {
-        alert("Ruta guardada con ID: " + rutaSeleccionadaID);
-    });
 }
 
-function mostrarMisRutas(){
-    let panel = document.getElementById("misRutasPanel");
-    panel.style.display = panel.style.display === "none" ? "block" : "none";
+// 📋 MIS RUTAS (preparado para backend)
+function misRutas(){
+
+// DESPUÉS HARÁ:
+// SELECT r.nombre, r.color
+// FROM mis_rutas m
+// JOIN rutas r ON r.clvRuta = m.clvRuta
+
+contenido.innerHTML=`
+<h3>Mis Rutas</h3>
+<p>Aquí el backend devolverá las rutas reales usando JOIN.</p>
+`;
+
+panel.classList.add("active");
 }
+
 </script>
-
 </body>
 </html>
