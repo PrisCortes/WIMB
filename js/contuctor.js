@@ -11,18 +11,17 @@ const btnFinalizar = document.getElementById('btnFinalizar');
 const txtEstado = document.getElementById('txtEstado');
 const indicator = document.getElementById('indicator');
 
-// Función para actualizar en Supabase (UPSERT)
 async function enviarUbicacion(lat, long, velocidad) {
     const { error } = await _supabase
         .from('monitoreo')
         .upsert({ 
-            cve_bus: cve_bus, 
+            cve_bus: cve_bus, // Esta es la "Primary Key" o columna única para el UPSERT
             lat: lat, 
             long: long, 
             velocidad: velocidad,
             last_update: new Date().toISOString(),
             estado: 'En ruta'
-        }, { onConflict: 'cve_bus' });
+        }, { onConflict: 'cve_bus' }); // Esto asegura que solo se modifique un registro
 
     if (error) console.error("Error enviando datos:", error.message);
 }
