@@ -33,7 +33,7 @@ async function dibujarRutaOficial(cve_ruta) {
     if (error || !puntos) return console.error("Error cargando ruta:", error);
 
     // Convertimos datos: nota que tu tabla usa 'latitud' y 'longitud'
-    const latlngs = puntos.map(p => [p.lat, p.long]);
+    const latlngs = puntos.map(p => [p.latitud, p.longitud]);
     const poly = L.polyline(latlngs, {
         color: '#fa3419', 
         weight: 3, 
