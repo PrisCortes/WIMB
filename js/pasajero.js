@@ -1,3 +1,8 @@
+// Configuración
+const SUPABASE_URL = 'https://kdvkzyoecsqzuguohfmk.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_3AyvQekNP4vsK2L14JhG5Q_1mERiBDi';
+const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
 // VARIABLES GLOBALES - Asegúrate de que coincidan con el conductor
 const idBusASeguir = '10'; // Antes tenías 'B0001', pero el conductor usa 10
 
