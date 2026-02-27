@@ -42,7 +42,7 @@ if($_SERVER["REQUEST_METHOD"]==="POST"){
 <div class="app">
 
 <div class="top">
-<input id="busqueda" placeholder="Buscar ruta o cualquier dirección...">
+<input id="busqueda" placeholder="Buscar ruta o cualquier dirección... (↵ Enter)">
 <button onclick="buscar()">🔍</button>
 </div>
 
@@ -90,6 +90,16 @@ let rutas = [
 {clvRuta:2, nombre:"Ruta Centro - Mercado", color:"blue"},
 {clvRuta:3, nombre:"Ruta Centro - Hospital", color:"green"}
 ];
+
+// 🔍 ENTER PARA BUSCAR
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('busqueda').addEventListener('keypress', function(e) {
+        if(e.key === 'Enter') {
+            e.preventDefault();
+            buscar();
+        }
+    });
+});
 
 // 🔍 BÚSQUEDA UNIVERSAL (rutas O direcciones)
 function buscar(){
