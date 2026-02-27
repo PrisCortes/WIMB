@@ -40,8 +40,9 @@
         <!-- Opciones de navegación -->
         <nav>
             <ul class="menu-options">
-                <li><a href="./conductor.php?accion=buscar" class="menu-option">Usuarios</a></li>
-                <li><a href="./driver_scan.php" class="menu-option">Rutas</a></li>
+                <li><a href="./admin_crud.php" class="menu-option">Choferes</a></li>
+                <li><a href="./usuarios.php" class="menu-option">Usuarios</a></li>
+                <li><a href="./rutas.php" class="menu-option">Rutas</a></li>
             </ul>
         </nav>
 
