@@ -11,11 +11,26 @@
     <div class="card status-card">
         <h2>Panel de Control del Chofer</h2>
         <p>Estado: <span id="txtEstado">Desconectado</span> <span id="indicator" class="indicator"></span></p>
+
+        <!-- Selector de ruta -->
+        <div class="form-group" id="select-rutas">
+            <label for="selectRuta">Seleccionar Ruta</label>
+            <select id="selectRuta">
+                <option value="">-- Selecciona una ruta --</option>
+                <option value="1">Ruta 1</option>
+                <option value="2">Ruta 2</option>
+                <option value="3">Ruta 3</option>
+            </select>
+        </div>
         
-        <hr>
-        
-        <button class="btn-secondary" id="btnIniciar">Iniciar Monitoreo</button>
-        <button class="btn-danger" id="btnFinalizar" style="display:none;">Terminar de compartir</button>
+        <button class="btn-estado-viaje" id="btnIniciar">
+            <img src="./assets/images/icons/autobus.png"/>
+            <span>Iniciar Monitoreo</span>
+        </button>
+        <button class="btn-estado-viaje" id="btnFinalizar" style="display:none;">
+            <img src="./assets/images/icons/finalizar.png"/>
+            <span>Terminar de compartir</span>
+        </button>
     </div>
 </div>
 

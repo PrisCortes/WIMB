@@ -8,6 +8,7 @@ const cve_bus = 10;
 
 const btnIniciar = document.getElementById('btnIniciar');
 const btnFinalizar = document.getElementById('btnFinalizar');
+const slctRutas = document.getElementById('select-rutas');
 
 async function enviarUbicacion(lat, long, velocidad) {
     console.log("Intentando enviar:", {lat, long, velocidad});
@@ -53,6 +54,9 @@ btnIniciar.addEventListener('click', () => {
             indicator.classList.add('online');
             btnIniciar.style.display = 'none';
             btnFinalizar.style.display = 'inline-block';
+            txtEstado.style.color = 'red';
+            txtEstado.style.fontWeight = 'bold';
+            slctRutas.style.display = 'none';
         },
         (err) => {
             console.error("Error de Geolocation:", err);
@@ -72,13 +76,23 @@ btnFinalizar.addEventListener('click', async () => {
     if (watchId) {
         navigator.geolocation.clearWatch(watchId);
         watchId = null;
-    
-        await _supabase.from('monitoreo').update({ estado: 'Fuera de servicio' }).eq('cve_bus', cve_bus);
+
+        await _supabase
+            .from('monitoreo')
+            .update({ estado: 'Fuera de servicio' })
+            .eq('cve_bus', cve_bus);
 
         txtEstado.innerText = "Desconectado";
+        txtEstado.style.color = '';   
+        txtEstado.style.fontWeight = '';
+
         indicator.classList.remove('online');
-        btnIniciar.style.display = 'inline-block';
+
+        btnIniciar.style.display = '';
         btnFinalizar.style.display = 'none';
+
+        slctRutas.style.display = 'block';
+
         alert("Monitoreo finalizado.");
     }
 });
