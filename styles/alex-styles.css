@@ -28,11 +28,7 @@ body{
 /* ==============================
    HEADER ESTILO UBER
 ============================== */
-header{
-    background:var(--blanco);
-    padding:20px 40px;
-    border-bottom:1px solid #e5e5e5;
-}
+
 
 header h2{
     font-size:1.4rem;
