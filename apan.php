@@ -34,32 +34,7 @@ if($_SERVER["REQUEST_METHOD"]==="POST"){
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <link rel="stylesheet" href="./styles/uriel-styles.css">
 <style>
-#coords-display {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: white;
-    padding: 10px;
-    border: 2px solid #333;
-    border-radius: 5px;
-    font-family: monospace;
-    font-size: 14px;
-    z-index: 1000;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-#resultado-busqueda {
-    position: fixed;
-    top: 60px;
-    right: 10px;
-    background: #4CAF50;
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    z-index: 1001;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-    display: none;
-}
+
 </style>
 </head>
 <body>
