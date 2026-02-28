@@ -131,7 +131,7 @@
                     mostrarMensaje("Inicio de sesión exitoso ✔", true);
 
                     setTimeout(() => {
-                        window.location.href = "index.php";
+                        window.location.href = "./pasajero.php";
                     }, 1500);
                 }
 

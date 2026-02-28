@@ -25,7 +25,7 @@
     
     <div class="dropdown-content" id="dropdownPerfil">
         <a href="javascript:void(0)" onclick="abrirCardPerfil()">Mi perfil</a>
-        <a href="logout.php" class="logout">Cerrar sesión</a>
+        <a href="./inicio_sesion.php" class="logout">Cerrar sesión</a>
     </div>
 </div>
 
